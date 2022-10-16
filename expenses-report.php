@@ -13,17 +13,30 @@
             <div class="col-md-12 mb-3 d-flex justify-content-center">
               <div class="d-flex justify-content-center">
                 <h2>Report</h2>
-
               </div>
             </div>
+
+            <?php
+            $sql = $db->prepare("SELECT expenses_category,
+                COUNT(*), 
+                SUM(expenses_price) FROM expenses 
+                GROUP BY expenses_category");
+            $sql->execute();
+
+            while ($sqlCek = $sql->fetch(PDO::FETCH_ASSOC)) {
+              $expenses_category[$sqlCek['expenses_category']] = $sqlCek['SUM(expenses_price)'];
+            }
+
+            ?>
+
 
             <div class="col-md-12 mb-3 d-flex justify-content-center">
               <ul class="nav nav-tabs">
                 <li class="nav-item">
-                  <a class="nav-link " aria-current="page" href="expenses-report.php">INCOME</a>
+                  <a class="nav-link " aria-current="page" href="income-report.php?view=3">INCOME</a>
                 </li>
                 <li class="nav-item">
-                  <a class="nav-link active " aria-current="page" href="expenses-report.php">EXPENSES</a>
+                  <a class="nav-link active " aria-current="page" href="expenses-report.php?view=3">EXPENSES</a>
                 </li>
               </ul>
             </div>
@@ -37,11 +50,6 @@
     </div>
 
 
-
-
-
-
-
     <?php require_once 'footer.php' ?>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.js">
@@ -51,25 +59,23 @@
       const myChart = new Chart(ctx, {
         type: 'doughnut',
         data: {
-          labels: [<?php
-                    foreach ($expenses_category as $key => $value) {
-                      echo "'" . $key . "',";
-                    }
-                    ?>],
+          labels: [
+            <?php foreach ($expenses_category as $key => $value) {
+              echo "'" . $key . "',";
+            } ?>
+          ],
           datasets: [{
             label: '# of Votes',
-            data: [<?php
-                    foreach ($expenses_category as $key => $value) {
-                      echo "'" . $value . "',";
-                    }
-                    ?>],
-            backgroundColor: [
-              'rgba(255, 99, 132, 0.2)',
-              'rgba(54, 162, 235, 0.2)',
-              'rgba(255, 206, 86, 0.2)',
-              'rgba(75, 192, 192, 0.2)',
+            data: [
+              <?php foreach ($expenses_category as $key => $value) {
+                echo $value . ",";
+              } ?>
             ],
-
+            backgroundColor: [
+              <?php foreach ($expenses_category as $key => $value) {
+                echo "'" . createRandomHex() . "',";
+              } ?>
+            ],
             borderWidth: 1
           }]
         },
@@ -82,6 +88,7 @@
         }
       });
     </script>
+
 
 
 
